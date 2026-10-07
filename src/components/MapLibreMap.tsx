@@ -4,7 +4,7 @@ import {
   type RequestTransformFunction,
 } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { RMap, useMap } from 'maplibre-react-components';
+import { RMap, RPopup, useMap } from 'maplibre-react-components';
 import { getHoydeFromPunkt } from '../api/getHoydeFromPunkt';
 import { useEffect, useState } from 'react';
 import { Overlay } from './Overlay';
@@ -39,7 +39,7 @@ export const MapLibreMap = () => {
 
   const onMapClick = async (e: MapLayerMouseEvent) => {
     const hoyder = await getHoydeFromPunkt(e.lngLat.lng, e.lngLat.lat);
-    setPointHoydeAtPunkt(hoyder[0].Z);
+    setPointHoydeAtPunkt(hoyder[0]?.Z);
     setClickPoint(new LngLat(e.lngLat.lng, e.lngLat.lat));
   };
 
@@ -60,6 +60,21 @@ export const MapLibreMap = () => {
         <p>Legg til funksjonalitet knyttet til kartet.</p>
       </Overlay>
       <DrawComponent />
+      {clickPoint && (
+        <RPopup longitude={clickPoint.lng} latitude={clickPoint.lat}>
+          <div>
+            <strong>Valgt punkt</strong>
+            <div>Latitude: {clickPoint.lat.toFixed(5)}</div>
+            <div>Longitude: {clickPoint.lng.toFixed(5)}</div>
+            <div>
+              Høyde:{' '}
+              {pointHoyde !== undefined
+                ? `${pointHoyde.toFixed(1)} moh.`
+                : 'Ukjent'}
+            </div>
+          </div>
+        </RPopup>
+      )}
     </RMap>
   );
 };
